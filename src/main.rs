@@ -17,28 +17,28 @@ use openidconnect::{
 fn main() {
     env_logger::init();
 
-    let google_client_id = ClientId::new(
-        env::var("GOOGLE_CLIENT_ID").expect("Missing the GOOGLE_CLIENT_ID environment variable."),
+    let oidc_client_id = ClientId::new(
+        env::var("OIDC_CLIENT_ID").expect("Missing the OIDC_CLIENT_ID environment variable."),
     );
-    let google_client_secret = ClientSecret::new(
-        env::var("GOOGLE_CLIENT_SECRET")
-            .expect("Missing the GOOGLE_CLIENT_SECRET environment variable."),
+    let oidc_client_secret = ClientSecret::new(
+        env::var("OIDC_CLIENT_SECRET")
+            .expect("Missing the OIDC_CLIENT_SECRET environment variable."),
     );
     let issuer_url =
         IssuerUrl::new("https://oauth2.sigstore.dev/auth".to_string()).expect("Invalid issuer URL");
 
-    // Fetch Google's OpenID Connect discovery document.
+    // Fetch OpenID Connect discovery document.
     let provider_metadata = CoreProviderMetadata::discover(&issuer_url, http_client)
         .unwrap_or_else(|_err| {
             println!("Failed to discover OpenID Provider");
             unreachable!();
         });
 
-    // Set up the config for the Google OAuth2 process.
+    // Set up the config for the OAuth2 process.
     let client = CoreClient::from_provider_metadata(
         provider_metadata,
-        google_client_id,
-        Some(google_client_secret),
+        oidc_client_id,
+        Some(oidc_client_secret),
     )
     // This example will be running its own server at localhost:8080.
     // See below for the server implementation.
