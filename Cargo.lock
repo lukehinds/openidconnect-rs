@@ -1056,6 +1056,8 @@ dependencies = [
  "open",
  "openidconnect 1.1.1",
  "reqwest 0.11.2",
+ "serde",
+ "serde_json",
  "url 2.2.1",
 ]
 

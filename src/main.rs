@@ -10,19 +10,23 @@ use openidconnect::core::{
 };
 use openidconnect::reqwest::http_client;
 use openidconnect::{
-    AuthenticationFlow, AuthorizationCode, ClientId, ClientSecret, CsrfToken, IssuerUrl, Nonce,
-    OAuth2TokenResponse, RedirectUrl, Scope,
+    AuthenticationFlow, AuthorizationCode, ClientId, ClientSecret, CsrfToken, IssuerUrl, Nonce, RedirectUrl, Scope,
 };
+
+#[allow(dead_code)]
+fn print_type_of<T>(_: &T) {
+    println!("{}", std::any::type_name::<T>())
+}
 
 fn main() {
     env_logger::init();
 
     let google_client_id = ClientId::new(
-        env::var("GOOGLE_CLIENT_ID").expect("Missing the GOOGLE_CLIENT_ID environment variable."),
+        env::var("SIGSTORE_CLIENT_ID").expect("Missing the SIGSTORE_CLIENT_ID environment variable."),
     );
     let google_client_secret = ClientSecret::new(
-        env::var("GOOGLE_CLIENT_SECRET")
-            .expect("Missing the GOOGLE_CLIENT_SECRET environment variable."),
+        env::var("SIGSTORE_CLIENT_SECRET")
+            .expect("Missing the SIGSTORE_CLIENT_SECRET environment variable."),
     );
     let issuer_url =
         IssuerUrl::new("https://oauth2.sigstore.dev/auth".to_string()).expect("Invalid issuer URL");
@@ -47,7 +51,7 @@ fn main() {
     );
 
     // Generate the authorization URL to which we'll redirect the user.
-    let (authorize_url, csrf_state, nonce) = client
+    let (authorize_url, _csrf_state, nonce) = client
         .authorize_url(
             AuthenticationFlow::<CoreResponseType>::AuthorizationCode,
             CsrfToken::new_random,
@@ -110,14 +114,13 @@ fn main() {
                 message.len(),
                 message
             );
+            let _newstate = &state;
             stream.write_all(response.as_bytes()).unwrap();
-
-            println!("Secret code:\n{}\n", code.secret());
-            println!(
-                "Open ID state:\n{} (expected `{}`)\n",
-                state.secret(),
-                csrf_state.secret()
-            );
+            // println!(
+            //     "Open ID state:\n{} (expected `{}`)\n",
+            //     state.secret(),
+            //     csrf_state.secret()
+            // );
 
             // Exchange the code with a token.
             let token_response = client
@@ -128,10 +131,10 @@ fn main() {
                     unreachable!();
                 });
 
-            println!(
-                "sigstore returned access token:\n{}\n",
-                token_response.access_token().secret()
-            );
+            // println!(
+            //     "sigstore returned access token:\n{}\n",
+            //     token_response.access_token().secret()
+            // );
             // println!("sigstore eturned scopes: {:?}", token_response.scopes());
 
             let id_token_verifier: CoreIdTokenVerifier = client.id_token_verifier();
@@ -144,9 +147,12 @@ fn main() {
                     println!("Failed to verify ID token");
                     unreachable!();
                 });
-            println!("Sigstore returned ID token: {:?}", id_token_claims);
-
+            // println!("Sigstore returned ID token: {:?}", id_token_claims);
             // The server will terminate itself after collecting the first code.
+            println!(
+                "User with e-mail address {} has authenticated successfully",
+                id_token_claims.email().map(|email| email.as_str()).unwrap_or("<not provided>"),
+            );
             break;
         }
     }
