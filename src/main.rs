@@ -21,21 +21,12 @@ fn print_type_of<T>(_: &T) {
 fn main() {
     env_logger::init();
 
-<<<<<<< HEAD
-    let google_client_id = ClientId::new(
-        env::var("SIGSTORE_CLIENT_ID").expect("Missing the SIGSTORE_CLIENT_ID environment variable."),
-    );
-    let google_client_secret = ClientSecret::new(
-        env::var("SIGSTORE_CLIENT_SECRET")
-            .expect("Missing the SIGSTORE_CLIENT_SECRET environment variable."),
-=======
     let oidc_client_id = ClientId::new(
         env::var("OIDC_CLIENT_ID").expect("Missing the OIDC_CLIENT_ID environment variable."),
     );
     let oidc_client_secret = ClientSecret::new(
         env::var("OIDC_CLIENT_SECRET")
             .expect("Missing the OIDC_CLIENT_SECRET environment variable."),
->>>>>>> 35d65a8a5b1b1639eb5b437a92b8017b2c73b4ca
     );
     let issuer_url =
         IssuerUrl::new("https://oauth2.sigstore.dev/auth".to_string()).expect("Invalid issuer URL");
